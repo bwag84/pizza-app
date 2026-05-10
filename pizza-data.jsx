@@ -23,9 +23,20 @@ const TEMPLATES = {
     bulkMin: 240, ballMin: 0, bakeMin: '18-22',
     notes: 'High hydration. Don\u2019t deflate after the bulk. Generous oil on the sheet.',
   },
+  custom: {
+    id: 'custom',
+    name: 'Custom',
+    sub: 'Your spec',
+    glyph: 'GlyphCustom',
+    // Starts as a copy of Roman per the chat decision; user can tweak then Save.
+    flour: 1000, water: 580, salt: 28, oil: 30, yeast: 3,
+    waterTemp: 22, doughTemp: 24, ovenTemp: 250,
+    bulkMin: 1440, ballMin: 60, bakeMin: '8-10',
+    notes: 'Cold ferment 24h. Stretch don\u2019t roll. Olive oil on the pan.',
+  },
 };
 
-const TEMPLATE_ORDER = ['roman', 'sheet'];
+const TEMPLATE_ORDER = ['roman', 'sheet', 'custom'];
 const BUILTIN_IDS = ['roman', 'sheet'];
 
 // Fields that count for dirty-detection + saving as a new custom template.

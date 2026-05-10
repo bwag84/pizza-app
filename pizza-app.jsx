@@ -5,16 +5,13 @@ const { useState, useEffect, useRef, useMemo } = React;
 // ─────────────────────────────────────────────────────────────
 // Shared bits
 // ─────────────────────────────────────────────────────────────
-function PageHeader({ title, tag, onMore }) {
+function PageHeader({ title, tag }) {
   return (
     <div className="page-hdr">
       <div>
         <h1 className="page-hdr__title">{title}</h1>
         <p className="page-hdr__tag">{tag}</p>
       </div>
-      <button className="iconbtn" aria-label="More" onClick={onMore}>
-        <IconMore />
-      </button>
     </div>
   );
 }
