@@ -1,0 +1,19 @@
+{
+  "name": "pie.sh — pizza",
+  "short_name": "pie.sh",
+  "description": "Dough by spec. Pizza recipes, calculator, and timeline.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3eee5",
+  "theme_color": "#f3eee5",
+  "icons": [
+    {
+      "src": "design-system/logo-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

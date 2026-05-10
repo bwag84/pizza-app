@@ -2,6 +2,29 @@
 
 const { useState, useEffect, useRef, useMemo } = React;
 
+// True on phones and when launched as an installed PWA — render full-screen
+// without the iPhone mock frame so the app feels native on the home screen.
+function useNativeMode() {
+  const detect = () => {
+    if (typeof window === 'undefined') return false;
+    const narrow = window.matchMedia('(max-width: 700px)').matches;
+    const standalone = window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+    return narrow || standalone;
+  };
+  const [native, setNative] = useState(detect);
+  useEffect(() => {
+    const mqs = [
+      window.matchMedia('(max-width: 700px)'),
+      window.matchMedia('(display-mode: standalone)'),
+    ];
+    const onChange = () => setNative(detect());
+    mqs.forEach((m) => m.addEventListener('change', onChange));
+    return () => mqs.forEach((m) => m.removeEventListener('change', onChange));
+  }, []);
+  return native;
+}
+
 // ─────────────────────────────────────────────────────────────
 // Shared bits
 // ─────────────────────────────────────────────────────────────
@@ -722,6 +745,7 @@ function recipeEquals(a, b) {
 }
 
 function App() {
+  const native = useNativeMode();
   const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [tab, setTab] = useState('templates');
   const [activeId, setActiveId] = useState('roman');
@@ -758,22 +782,24 @@ function App() {
     '--tomato': ACCENT_HEX[tweaks.accent] || ACCENT_HEX.tomato,
   };
 
+  const appShell = (
+    <div className={`app ${native ? 'app--native' : ''}`} data-theme={tweaks.theme} style={appStyle}>
+      <div className="app__scroll">
+        {tab === 'templates'  && <TemplatesScreen  recipe={recipe} setRecipe={setRecipe} activeId={activeId} setActiveId={setActiveId} templates={templates} saveCustom={saveCustom} renameCustom={renameCustom} />}
+        {tab === 'calculator' && <CalculatorScreen recipe={recipe} setRecipe={setRecipe} />}
+        {tab === 'timeline'   && <TimelineScreen   recipe={recipe} />}
+        {tab === 'guide'      && <GuideScreen />}
+        {tab === 'settings'   && <SettingsScreen   tweaks={tweaks} setTweak={setTweak} />}
+      </div>
+      <TabBar tab={tab} setTab={setTab} />
+    </div>
+  );
+
   return (
     <>
-      <IOSDevice width={402} height={874}>
-        <div className="app" data-theme={tweaks.theme} style={appStyle}>
-          <div className="app__scroll">
-            {tab === 'templates'  && <TemplatesScreen  recipe={recipe} setRecipe={setRecipe} activeId={activeId} setActiveId={setActiveId} templates={templates} saveCustom={saveCustom} renameCustom={renameCustom} />}
-            {tab === 'calculator' && <CalculatorScreen recipe={recipe} setRecipe={setRecipe} />}
-            {tab === 'timeline'   && <TimelineScreen   recipe={recipe} />}
-            {tab === 'guide'      && <GuideScreen />}
-            {tab === 'settings'   && <SettingsScreen   tweaks={tweaks} setTweak={setTweak} />}
-          </div>
-          <TabBar tab={tab} setTab={setTab} />
-        </div>
-      </IOSDevice>
+      {native ? appShell : <IOSDevice width={402} height={874}>{appShell}</IOSDevice>}
 
-      <TweaksPanel title="Tweaks">
+      {!native && <TweaksPanel title="Tweaks">
         <TweakSection label="Theme" />
         <TweakRadio label="Mode" value={tweaks.theme}
                     options={[{value:'latte',label:'Latte'},{value:'char',label:'Char'}]}
@@ -798,7 +824,7 @@ function App() {
         <TweakRadio label="Template" value={activeId}
                     options={[{value:'roman',label:'Roman'},{value:'sheet',label:'Sheet'},{value:'custom',label:'Custom'}]}
                     onChange={(id) => { setActiveId(id); setRecipe({...TEMPLATES[id]}); }} />
-      </TweaksPanel>
+      </TweaksPanel>}
     </>
   );
 }
