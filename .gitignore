@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnp.*
+
+# Build
+dist/
+build/
+.next/
+out/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# AI tools
+.claude/settings.local.json
+.cursor/
+.aider*
+.continue/
+.cody/
+
+# Secrets & credentials
+*.pem
+*.key
+*.p12
+credentials.json
+service-account*.json
+.npmrc
+.aws/
+.ssh/
+.docker/config.json
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & coverage
+*.log
+coverage/
+.nyc_output/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
