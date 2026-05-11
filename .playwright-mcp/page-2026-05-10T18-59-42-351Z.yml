@@ -1,0 +1,121 @@
+- generic [ref=e3]:
+  - generic [ref=e6]:
+    - generic [ref=e8]: 9:41
+    - generic [ref=e9]:
+      - img [ref=e10]
+      - img [ref=e15]
+      - img [ref=e19]
+  - generic [ref=e25]:
+    - generic [ref=e26]:
+      - generic [ref=e28]:
+        - heading "Pizza" [level=1] [ref=e29]
+        - paragraph [ref=e30]: Dough by spec. ◣ pie.sh
+      - generic [ref=e31]:
+        - generic [ref=e33]: Template
+        - generic [ref=e34]:
+          - button "Roman Thin & crisp" [ref=e35] [cursor=pointer]:
+            - img [ref=e37]
+            - generic [ref=e49]:
+              - generic [ref=e50]: Roman
+              - generic [ref=e51]: Thin & crisp
+          - button "Sheet-Pan Thick & airy" [ref=e52] [cursor=pointer]:
+            - img [ref=e54]
+            - generic [ref=e75]:
+              - generic [ref=e76]: Sheet-Pan
+              - generic [ref=e77]: Thick & airy
+          - button "bart Your spec" [ref=e78] [cursor=pointer]:
+            - img [ref=e80]
+            - generic [ref=e83]:
+              - generic [ref=e84]: bart
+              - generic [ref=e85]: Your spec
+      - generic [ref=e86]:
+        - generic [ref=e87]:
+          - generic [ref=e88]: Dough recipe
+          - generic [ref=e89]: baker’s %
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - img [ref=e93]
+            - generic [ref=e95]: Water
+            - generic [ref=e96]:
+              - spinbutton [ref=e97]: "580"
+              - generic [ref=e98]: g
+            - button "58%" [ref=e99] [cursor=pointer]
+          - generic [ref=e100]:
+            - img [ref=e102]
+            - generic [ref=e108]: Salt
+            - generic [ref=e109]:
+              - spinbutton [ref=e110]: "28"
+              - generic [ref=e111]: g
+            - button "2.8%" [ref=e112] [cursor=pointer]
+          - generic [ref=e113]:
+            - img [ref=e115]
+            - generic [ref=e127]: Flour
+            - generic [ref=e128]:
+              - spinbutton [ref=e129]: "1000"
+              - generic [ref=e130]: g
+            - button "100%" [disabled] [ref=e131]
+          - generic [ref=e132]:
+            - img [ref=e134]
+            - generic [ref=e141]: Yeast
+            - generic [ref=e142]:
+              - spinbutton [ref=e143]: "3"
+              - generic [ref=e144]: g
+            - button "0.3%" [ref=e145] [cursor=pointer]
+          - generic [ref=e146]:
+            - img [ref=e148]
+            - generic [ref=e150]: Oil
+            - generic [ref=e151]:
+              - spinbutton [ref=e152]: "30"
+              - generic [ref=e153]: g
+            - button "3.0%" [ref=e154] [cursor=pointer]
+      - generic [ref=e155]:
+        - generic [ref=e157]: Temperatures
+        - generic [ref=e158]:
+          - generic [ref=e159]:
+            - img [ref=e161]
+            - generic [ref=e164]: Water temperature
+            - generic [ref=e165]:
+              - spinbutton [ref=e166]: "22"
+              - generic [ref=e167]: °C
+          - generic [ref=e168]:
+            - img [ref=e170]
+            - generic [ref=e174]: Dough target
+            - generic [ref=e175]:
+              - spinbutton [ref=e176]: "24"
+              - generic [ref=e177]: °C
+          - generic [ref=e178]:
+            - img [ref=e180]
+            - generic [ref=e184]: Oven temperature
+            - generic [ref=e185]:
+              - spinbutton [ref=e186]: "250"
+              - generic [ref=e187]: °C
+      - generic [ref=e188]:
+        - img [ref=e190]
+        - generic [ref=e193]:
+          - generic [ref=e194]: Bulk ferment
+          - generic [ref=e195]: 24 h
+        - generic [ref=e196]:
+          - generic [ref=e197]: Ball rest
+          - generic [ref=e198]: 1 h
+        - generic [ref=e199]:
+          - generic [ref=e200]: Bake
+          - generic [ref=e201]: 8-10 min
+      - generic [ref=e202]:
+        - generic [ref=e204]: Template notes
+        - textbox "Anything weird about this batch…" [ref=e205]: Cold ferment 24h. Stretch don’t roll. Olive oil on the pan.
+    - generic [ref=e207]:
+      - button "Templates" [ref=e208] [cursor=pointer]:
+        - img [ref=e209]
+        - generic [ref=e214]: Templates
+      - button "Calculator" [ref=e215] [cursor=pointer]:
+        - img [ref=e216]
+        - generic [ref=e225]: Calculator
+      - button "Timeline" [ref=e226] [cursor=pointer]:
+        - img [ref=e227]
+        - generic [ref=e230]: Timeline
+      - button "Guide" [ref=e231] [cursor=pointer]:
+        - img [ref=e232]
+        - generic [ref=e235]: Guide
+      - button "Settings" [ref=e236] [cursor=pointer]:
+        - img [ref=e237]
+        - generic [ref=e240]: Settings

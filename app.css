@@ -301,10 +301,11 @@ html, body {
   border-radius: 12px;
   padding: 18px 20px;
   display: grid;
-  grid-template-columns: 28px 1fr 1fr 1fr;
+  grid-template-columns: 28px 1fr;
   align-items: center;
   gap: 16px;
 }
+.timing__cell--input { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
 .timing__icon { color: var(--fg-muted); }
 .timing__cell { display: flex; flex-direction: column; gap: 2px; }
 .timing__cell + .timing__cell { border-left: 1px solid var(--border-faint); padding-left: 16px; }

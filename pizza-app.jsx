@@ -124,7 +124,7 @@ function CustomSaveBar({ template, recipe, onSave, onRename }) {
   useEffect(() => { setName(template.name || 'Custom'); }, [template.name]);
 
   // Detect unsaved differences vs the stored template.
-  const fields = ['flour','water','salt','oil','yeast','waterTemp','doughTemp','ovenTemp','bulkMin','ballMin','bakeMin','notes'];
+  const fields = ['flour','water','salt','oil','yeast','fermentHours','notes'];
   const dirty = fields.some((k) => recipe[k] !== template[k]) || name !== (template.name || 'Custom');
 
   const commit = () => {
@@ -167,6 +167,17 @@ function TemplatesScreen({ recipe, setRecipe, activeId, setActiveId, templates, 
     setRecipe({ ...recipe, [field]: val });
   };
 
+  // Changing fermentation time recomputes yeast (and keeps bulkMin in sync
+  // so the Timeline screen still has something to render).
+  const updateFermentHours = (hours) => {
+    const h = Number(hours) || 0;
+    const curve = recipe.yeastCurve || (T[activeId] && T[activeId].yeastCurve);
+    const next = { ...recipe, fermentHours: h, bulkMin: Math.round(h * 60) };
+    const g = yeastGramsFromHours(curve, h, recipe.flour);
+    if (g != null) next.yeast = g;
+    setRecipe(next);
+  };
+
   // Order matters: water first, then salt to dissolve, then flour, then yeast, then oil.
   const ingredients = [
     { id: 'water', name: 'Water', icon: <IconWater /> },
@@ -176,17 +187,6 @@ function TemplatesScreen({ recipe, setRecipe, activeId, setActiveId, templates, 
     { id: 'oil',   name: 'Oil',   icon: <IconOil /> },
   ];
 
-  const temps = [
-    { id: 'waterTemp', name: 'Water temperature', icon: <IconThermo /> },
-    { id: 'doughTemp', name: 'Dough target',      icon: <IconOven stroke={1.5} /> },
-    { id: 'ovenTemp',  name: 'Oven temperature',  icon: <IconOven stroke={1.5} /> },
-  ];
-
-  const bulk = fmtMin(recipe.bulkMin);
-  const ball = fmtMin(recipe.ballMin);
-  const bake = typeof recipe.bakeMin === 'string'
-    ? { val: recipe.bakeMin, unit: 'min' }
-    : fmtMin(recipe.bakeMin);
 
   return (
     <>
@@ -233,47 +233,12 @@ function TemplatesScreen({ recipe, setRecipe, activeId, setActiveId, templates, 
         </div>
       </Section>
 
-      <Section eyebrow="Temperatures">
-        <div className="rec-list">
-          {temps.map((t) => (
-            <div key={t.id} className="rec-row">
-              <div className="rec-row__icon">{t.icon}</div>
-              <div className="rec-row__name">{t.name}</div>
-              <NumInput value={recipe[t.id]} unit="°C"
-                        onChange={(v) => updateField(t.id, v)} />
-              <div />
-            </div>
-          ))}
-        </div>
-      </Section>
-
       <div className="timing">
         <div className="timing__icon"><IconClock size={22} /></div>
-        <div className="timing__cell">
-          <span className="timing__label">Bulk ferment</span>
-          <span className="timing__val">
-            {typeof bulk === 'object' ? bulk.val : bulk}{' '}
-            <span className="timing__unit">{typeof bulk === 'object' ? bulk.unit : ''}</span>
-          </span>
-        </div>
-        <div className="timing__cell">
-          <span className="timing__label">Ball rest</span>
-          <span className="timing__val">
-            {recipe.ballMin > 0 ? (
-              <>
-                {typeof ball === 'object' ? ball.val : ball}{' '}
-                <span className="timing__unit">{typeof ball === 'object' ? ball.unit : ''}</span>
-              </>
-            ) : (
-              <span style={{color:'var(--fg-faint)'}}>&mdash;</span>
-            )}
-          </span>
-        </div>
-        <div className="timing__cell">
-          <span className="timing__label">Bake</span>
-          <span className="timing__val">
-            {bake.val} <span className="timing__unit">{bake.unit}</span>
-          </span>
+        <div className="timing__cell timing__cell--input">
+          <span className="timing__label">Fermentation</span>
+          <NumInput value={recipe.fermentHours} unit="h"
+                    onChange={updateFermentHours} />
         </div>
       </div>
 
@@ -705,19 +670,29 @@ function newCustomId() {
   return 'c-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
 }
 
+function migrateCustom(c) {
+  if (!c || typeof c !== 'object') return c;
+  const out = { ...c };
+  if (out.fermentHours == null) {
+    out.fermentHours = out.bulkMin ? Math.round(out.bulkMin / 60) : 20;
+  }
+  if (!out.yeastCurve) out.yeastCurve = YEAST_CURVES.custom;
+  return out;
+}
+
 function loadCustoms() {
   try {
     const raw = localStorage.getItem(LS_CUSTOMS);
     if (raw) {
       const arr = JSON.parse(raw);
-      if (Array.isArray(arr)) return arr;
+      if (Array.isArray(arr)) return arr.map(migrateCustom);
     }
     // migrate legacy single-custom into the array
     const legacy = localStorage.getItem(LS_CUSTOM_LEGACY);
     if (legacy) {
       const obj = JSON.parse(legacy);
       if (obj && obj.flour) {
-        const c = { ...obj, id: newCustomId(), glyph: 'GlyphCustom', sub: obj.sub || 'Saved spec' };
+        const c = migrateCustom({ ...obj, id: newCustomId(), glyph: 'GlyphCustom', sub: obj.sub || 'Saved spec' });
         try { localStorage.setItem(LS_CUSTOMS, JSON.stringify([c])); } catch (e) {}
         return [c];
       }

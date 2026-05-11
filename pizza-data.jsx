@@ -1,6 +1,20 @@
 // Recipe templates and pure helpers (no React).
 // Baker's % is always relative to flour weight.
 
+// Yeast % vs. fermentation time, per template. Linear interpolation between
+// points; clamp outside the range. Single-point curves return a constant.
+const YEAST_CURVES = {
+  roman: [
+    { h: 2,  pct: 2.0 },
+    { h: 4,  pct: 1.0 },
+    { h: 20, pct: 0.5 },
+  ],
+  sheet: [
+    { h: 4, pct: 1.65 },
+  ],
+};
+YEAST_CURVES.custom = YEAST_CURVES.roman;
+
 const TEMPLATES = {
   roman: {
     id: 'roman',
@@ -8,19 +22,21 @@ const TEMPLATES = {
     sub: 'Thin & crisp',
     glyph: 'GlyphRoman',
     // grams
-    flour: 1000, water: 580, salt: 28, oil: 30, yeast: 3,
+    flour: 1000, water: 580, salt: 28, oil: 30, yeast: 5,
     waterTemp: 22, doughTemp: 24, ovenTemp: 250,
-    bulkMin: 1440, ballMin: 60, bakeMin: '8-10',
-    notes: 'Cold ferment 24h. Stretch don\u2019t roll. Olive oil on the pan.',
+    fermentHours: 20, bulkMin: 1200, ballMin: 60, bakeMin: '8-10',
+    yeastCurve: YEAST_CURVES.roman,
+    notes: 'Cold ferment 20h. Stretch don\u2019t roll. Olive oil on the pan.',
   },
   sheet: {
     id: 'sheet',
     name: 'Sheet-Pan',
     sub: 'Thick & airy',
     glyph: 'GlyphSheetPan',
-    flour: 1000, water: 800, salt: 25, oil: 40, yeast: 2,
+    flour: 1000, water: 671, salt: 19, oil: 47, yeast: 17,
     waterTemp: 20, doughTemp: 25, ovenTemp: 240,
-    bulkMin: 240, ballMin: 0, bakeMin: '18-22',
+    fermentHours: 4, bulkMin: 240, ballMin: 0, bakeMin: '18-22',
+    yeastCurve: YEAST_CURVES.sheet,
     notes: 'High hydration. Don\u2019t deflate after the bulk. Generous oil on the sheet.',
   },
   custom: {
@@ -28,19 +44,45 @@ const TEMPLATES = {
     name: 'Custom',
     sub: 'Your spec',
     glyph: 'GlyphCustom',
-    // Starts as a copy of Roman per the chat decision; user can tweak then Save.
-    flour: 1000, water: 580, salt: 28, oil: 30, yeast: 3,
+    flour: 1000, water: 580, salt: 28, oil: 30, yeast: 5,
     waterTemp: 22, doughTemp: 24, ovenTemp: 250,
-    bulkMin: 1440, ballMin: 60, bakeMin: '8-10',
-    notes: 'Cold ferment 24h. Stretch don\u2019t roll. Olive oil on the pan.',
+    fermentHours: 20, bulkMin: 1200, ballMin: 60, bakeMin: '8-10',
+    yeastCurve: YEAST_CURVES.custom,
+    notes: 'Cold ferment 20h. Stretch don\u2019t roll. Olive oil on the pan.',
   },
 };
+
+// Look up yeast % for a given fermentation duration (hours). Linear interp
+// between the two flanking points; clamp at the curve's endpoints.
+function yeastPctForHours(curve, hours) {
+  if (!curve || curve.length === 0) return null;
+  if (curve.length === 1) return curve[0].pct;
+  const sorted = [...curve].sort((a, b) => a.h - b.h);
+  if (hours <= sorted[0].h) return sorted[0].pct;
+  if (hours >= sorted[sorted.length - 1].h) return sorted[sorted.length - 1].pct;
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const a = sorted[i], b = sorted[i + 1];
+    if (hours >= a.h && hours <= b.h) {
+      const t = (hours - a.h) / (b.h - a.h);
+      return a.pct + t * (b.pct - a.pct);
+    }
+  }
+  return sorted[sorted.length - 1].pct;
+}
+
+// Round yeast grams sensibly: <10g to 1 decimal, \u226510g to integer.
+function yeastGramsFromHours(curve, hours, flour) {
+  const pct = yeastPctForHours(curve, hours);
+  if (pct == null || !flour) return null;
+  const g = (pct / 100) * flour;
+  return g < 10 ? Math.round(g * 10) / 10 : Math.round(g);
+}
 
 const TEMPLATE_ORDER = ['roman', 'sheet', 'custom'];
 const BUILTIN_IDS = ['roman', 'sheet'];
 
 // Fields that count for dirty-detection + saving as a new custom template.
-const RECIPE_FIELDS = ['flour','water','salt','oil','yeast','waterTemp','doughTemp','ovenTemp','bulkMin','ballMin','bakeMin','notes'];
+const RECIPE_FIELDS = ['flour','water','salt','oil','yeast','fermentHours','notes'];
 
 const fmtPct = (n, flour) => {
   if (!flour) return '0.0%';
@@ -83,4 +125,4 @@ function buildTimeline(t, startMs) {
   });
 }
 
-Object.assign(window, { TEMPLATES, TEMPLATE_ORDER, BUILTIN_IDS, RECIPE_FIELDS, fmtPct, fmtMin, buildTimeline });
+Object.assign(window, { TEMPLATES, TEMPLATE_ORDER, BUILTIN_IDS, RECIPE_FIELDS, YEAST_CURVES, fmtPct, fmtMin, buildTimeline, yeastPctForHours, yeastGramsFromHours });
